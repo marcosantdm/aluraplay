@@ -1,6 +1,10 @@
 <?php
 
 // Armazena o caminho do banco de dados, facilitando a manutenção
+
+use Alura\Mvc\Entity\Video;
+use Alura\Mvc\Repository\VideoRepository;
+
 $dbPath = __DIR__ . '/banco.sqlite';
 
 // Cria um banco de dados em memória
@@ -8,7 +12,7 @@ $pdo = new PDO("sqlite:$dbPath");
 
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
-if ($id === false) {
+if ($id === false || $id === null) {
     header('Location: /');
     exit;
 }
@@ -30,6 +34,12 @@ $statement = $pdo->prepare($sql);
 $statement->bindValue(':url', $url);
 $statement->bindValue(':title', $titulo);
 $statement->bindValue(':id', $id, PDO::PARAM_INT);
+
+$video = new Video($url, $titulo);
+$video->setId($id);
+
+$repository = new VideoRepository($pdo);
+$repository->update($video);
 
 if ($statement->execute() === false) {
     header('Location: /?sucesso=0');

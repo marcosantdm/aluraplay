@@ -1,6 +1,10 @@
 <?php
 
 // Armazena o caminho do banco de dados, facilitando a manutenção
+
+use Alura\Mvc\Entity\Video;
+use Alura\Mvc\Repository\VideoRepository;
+
 $dbPath = __DIR__ . '/banco.sqlite';
 
 // Cria um banco de dados em memória
@@ -17,15 +21,12 @@ if ($titulo === false) {
     exit;
 }
 
-$sql = 'INSERT INTO videos (url, title) VALUES (?, ?)';
+$repository = new VideoRepository($pdo);
 
-$statement = $pdo->prepare($sql);
-$statement->bindValue(1, $url);
-$statement->bindValue(2, $titulo);
-
-if ($statement->execute() ===false) {
+if (
+    $repository->add(new Video($url, $titulo)) === false
+) {
     header('Location: /?sucesso=0');
 } else {
     header('Location: /?sucesso=1');
 }
-
