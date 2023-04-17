@@ -3,34 +3,41 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../vendor/autoload.php';
-
-use Alura\Mvc\Controller\VideoListController;
+use Alura\Mvc\Controller\{
+    Controller,
+    DeleteVideoController,
+    EditVideoController,
+    Error404Controller,
+    NewVideoController,
+    VideoFormController,
+    VideoListController
+};
 use Alura\Mvc\Repository\VideoRepository;
 
+require_once __DIR__ . '/../vendor/autoload.php';
 
-// Armazena o caminho do banco de dados, facilitando a manutenção
 $dbPath = __DIR__ . '/../banco.sqlite';
-// Cria um banco de dados em memória
 $pdo = new PDO("sqlite:$dbPath");
-
 $videoRepository = new VideoRepository($pdo);
 
 if (!array_key_exists('PATH_INFO', $_SERVER) || $_SERVER['PATH_INFO'] === '/') {
     $controller = new VideoListController($videoRepository);
-    $controller->processaRequisicao();
 } elseif ($_SERVER['PATH_INFO'] === '/novo-video') {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        require_once __DIR__ . '/../formulario.php';
+        $controller = new VideoFormController($videoRepository);
     } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        require_once __DIR__ . '/../novo-video.php';
+        $controller = new NewVideoController($videoRepository);
     }
 } elseif ($_SERVER['PATH_INFO'] === '/editar-video') {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        require_once __DIR__ . '/../formulario.php';
+        $controller = new VideoFormController($videoRepository);
     } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        require_once __DIR__ . '/../editar-video.php';
+        $controller = new EditVideoController($videoRepository);
     }
 } elseif ($_SERVER['PATH_INFO'] === '/remover-video') {
-    require_once __DIR__ . '/../remover-video.php';
+    $controller = new DeleteVideoController($videoRepository);
+} else {
+    $controller = new Error404Controller();
 }
+/** @var Controller $controller */
+$controller->processaRequisicao();
