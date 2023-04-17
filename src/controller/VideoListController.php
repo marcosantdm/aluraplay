@@ -18,6 +18,6 @@ class VideoListController
     {
         $videoList = $this->videoRepository->all();
 
-        require_once __DIR__ . '/../view/listagem-videos.php';
+        require_once __DIR__ . '/../view/video-list.php';
     }
 }
